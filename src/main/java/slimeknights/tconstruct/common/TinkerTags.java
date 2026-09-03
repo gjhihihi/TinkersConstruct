@@ -11,6 +11,7 @@ import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Instrument;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.Potion;
@@ -51,6 +52,7 @@ public class TinkerTags {
     DamageTypes.init();
     MenuTypes.init();
     Potions.init();
+    CreativeTabs.init();
     Instruments.init();
     MinecraftForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, TagsUpdatedEvent.class, event -> tagsLoaded = true);
   }
@@ -850,6 +852,14 @@ public class TinkerTags {
 
     // JEI
     public static final TagKey<Modifier> HIDDEN_FROM_RECIPE_VIEWERS = hiddenFromRecipeViewers(ModifierManager.REGISTRY_KEY);
+    /** Modifiers in this tag allow crafting and should be listed as a crafting table catalyst */
+    public static final TagKey<Modifier> CRAFTING = local("jei/crafting");
+    /** Modifiers in this tag allow smelting and should be listed as a furnace catalyst */
+    public static final TagKey<Modifier> SMELTING = local("jei/smelting");
+    /** Modifiers in this tag allow melting recipes and should be listed as an item and entity melting catalyst. If a modifier needs these separated make a feature request. */
+    public static final TagKey<Modifier> MELTING = local("jei/melting");
+    /** Modifiers in this tag allow severing and are listed as a severing catalyst */
+    public static final TagKey<Modifier> SEVERING = local("jei/severing");
 
 
     private static TagKey<Modifier> local(String name) {
@@ -859,6 +869,8 @@ public class TinkerTags {
 
   public static class Materials {
     private static void init() {}
+    /** Materials to render with an enchanted glint. See also {@link slimeknights.tconstruct.tools.data.ModifierIds#shiny}. */
+    public static final TagKey<IMaterial> SHINY = local("shiny");
     /** Materials available in nether. */
     public static final TagKey<IMaterial> NETHER = local("nether");
     /** Materials that cannot be obtained without going to the nether. */
@@ -913,6 +925,9 @@ public class TinkerTags {
 
   public static class DamageTypes {
     private static void init() {}
+    /** Damage types dealt by a melee attack, notably excluding damage that is merely in melee range such as cramming. Shared by the melee protection modifier and the loot modifier whitelist. */
+    public static final TagKey<DamageType> IS_MELEE = local("is_melee");
+
     /** Damage types reduced by the melee protection modifier */
     public static final TagKey<DamageType> MELEE_PROTECTION = local("protection/melee");
     /** Damage types reduced by the projectile protection modifier */
@@ -928,6 +943,8 @@ public class TinkerTags {
 
     /** Damage types that can use modifiers. */
     public static final TagKey<DamageType> MODIFIER_WHITELIST = local("modifier_whitelist");
+    /** Damage types where the held tool is responsible for the kill, allowing it to apply loot modifiers such as severing. Projectiles instead use the modifiers stored on the projectile. */
+    public static final TagKey<DamageType> LOOT_MODIFIER_WHITELIST = local("loot_modifier_whitelist");
 
     private static TagKey<DamageType> local(String name) {
       return TagKey.create(Registries.DAMAGE_TYPE, getResource(name));
@@ -946,6 +963,13 @@ public class TinkerTags {
 
     /** Any potion variants in this tag will be hidden from the variants of the potion fluid shown in JEI. */
     public static final TagKey<Potion> HIDDEN_FLUID = TagKey.create(Registries.POTION, getResource("hide_in_fluid"));
+  }
+
+  public static class CreativeTabs {
+    private static void init() {}
+
+    /** Any creative tabs in this tag will not include their items in JEI. */
+    public static final TagKey<CreativeModeTab> HIDDEN_IN_RECIPE_VIEWERS = hiddenFromRecipeViewers(Registries.CREATIVE_MODE_TAB);
   }
 
   public static class Instruments {

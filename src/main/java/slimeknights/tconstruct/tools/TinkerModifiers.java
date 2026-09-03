@@ -161,6 +161,7 @@ import slimeknights.tconstruct.library.modifiers.modules.display.MeleeInstrument
 import slimeknights.tconstruct.library.modifiers.modules.display.ModifierVariantColorModule;
 import slimeknights.tconstruct.library.modifiers.modules.display.ModifierVariantNameModule;
 import slimeknights.tconstruct.library.modifiers.modules.display.ShowInteractionSourceModule;
+import slimeknights.tconstruct.library.modifiers.modules.display.StatTooltipModule;
 import slimeknights.tconstruct.library.modifiers.modules.interaction.edible.EdibleConsumeDurabilityModule;
 import slimeknights.tconstruct.library.modifiers.modules.interaction.edible.EdibleCureEffectsModule;
 import slimeknights.tconstruct.library.modifiers.modules.interaction.edible.EdibleCureRandomEffectModule;
@@ -241,9 +242,7 @@ import slimeknights.tconstruct.tools.modifiers.traits.melee.InsatiableModifier;
 import slimeknights.tconstruct.tools.modifiers.traits.melee.LaceratingModifier;
 import slimeknights.tconstruct.tools.modifiers.traits.ranged.OlympicModifier;
 import slimeknights.tconstruct.tools.modifiers.traits.skull.BreathtakingModifier;
-import slimeknights.tconstruct.tools.modifiers.traits.skull.ChrysophiliteModifier;
 import slimeknights.tconstruct.tools.modifiers.traits.skull.FirebreathModifier;
-import slimeknights.tconstruct.tools.modifiers.traits.skull.GoldGuardModifier;
 import slimeknights.tconstruct.tools.modifiers.traits.skull.PlagueModifier;
 import slimeknights.tconstruct.tools.modifiers.traits.skull.SelfDestructiveModifier;
 import slimeknights.tconstruct.tools.modifiers.traits.skull.StrongBonesModifier;
@@ -271,6 +270,7 @@ import slimeknights.tconstruct.tools.modules.armor.FireWalkerModule;
 import slimeknights.tconstruct.tools.modules.armor.FlameBarrierModule;
 import slimeknights.tconstruct.tools.modules.armor.FreezingCounterModule;
 import slimeknights.tconstruct.tools.modules.armor.GlowWalkerModule;
+import slimeknights.tconstruct.tools.modules.armor.GoldenAttributeModule;
 import slimeknights.tconstruct.tools.modules.armor.KineticModule;
 import slimeknights.tconstruct.tools.modules.armor.KnockbackCounterModule;
 import slimeknights.tconstruct.tools.modules.armor.LightspeedAttributeModule;
@@ -421,8 +421,6 @@ public final class TinkerModifiers extends TinkerModule {
   public static final StaticModifier<SelfDestructiveModifier> selfDestructive = MODIFIERS.register("self_destructive", SelfDestructiveModifier::new);
   public static final StaticModifier<StrongBonesModifier> strongBones = MODIFIERS.register("strong_bones", StrongBonesModifier::new);
   public static final StaticModifier<PlagueModifier> plague = MODIFIERS.register("plague", PlagueModifier::new);
-  public static final StaticModifier<ChrysophiliteModifier> chrysophilite = MODIFIERS.register("chrysophilite", ChrysophiliteModifier::new);
-  public static final StaticModifier<GoldGuardModifier> goldGuard = MODIFIERS.register("gold_guard", GoldGuardModifier::new);
 
   // slotless - cosmetic - used as defaults for rendering modules and recipes
   public static final StaticModifier<?> embellishment = MODIFIERS.registerDynamic("embellishment");
@@ -435,10 +433,8 @@ public final class TinkerModifiers extends TinkerModule {
   public static final DynamicModifier sleeves = MODIFIERS.registerDynamic("sleeves");
   public static final DynamicModifier shieldStrap = MODIFIERS.registerDynamic("shield_strap");
 
-  // used in JEI
-  /** Used in JEI to add tools to the severing tab */
+  // TODO 1.21: relocate to ModifierIds, no longer directly referenced in JEI thanks to the tags
   public static final StaticModifier<?> severing = MODIFIERS.registerDynamic("severing");
-  /** Used in JEI to add tools to the melting tabs */
   public static final DynamicModifier melting = MODIFIERS.registerDynamic("melting");
 
   // logic handlers - used as modifier traits
@@ -491,6 +487,9 @@ public final class TinkerModifiers extends TinkerModule {
   /** @deprecated blazes trait was switched to {@link slimeknights.tconstruct.tools.data.ModifierIds#fireborn} and helmet projectile was switched to {@link slimeknights.tconstruct.tools.data.ModifierIds#spitting} */
   @Deprecated(forRemoval = true)
   public static final StaticModifier<FirebreathModifier> firebreath = MODIFIERS.register("firebreath", FirebreathModifier::new);
+  /** @deprecated zombified piglin's trait was switched to {@link slimeknights.tconstruct.tools.data.ModifierIds#vitalProtectionSkull} */
+  @Deprecated(forRemoval = true)
+  public static final StaticModifier<?> revenge = MODIFIERS.registerDynamic("revenge");
 
   // fields that have been relocated to ModifierIds
   // slotless
@@ -684,12 +683,15 @@ public final class TinkerModifiers extends TinkerModule {
   /** @deprecated use {@link slimeknights.tconstruct.tools.data.ModifierIds#witheredBones} */
   @Deprecated(forRemoval = true)
   public static final StaticModifier<?> withered = MODIFIERS.registerDynamic("withered");
-  /** @deprecated use {@link slimeknights.tconstruct.tools.data.ModifierIds#revenge} */
-  @Deprecated(forRemoval = true)
-  public static final StaticModifier<?> revenge = MODIFIERS.registerDynamic("revenge");
-  /** @deprecated use {@link slimeknights.tconstruct.tools.data.ModifierIds#revenge} */
+  /** @deprecated use {@link slimeknights.tconstruct.tools.data.ModifierIds#enderdodging} */
   @Deprecated(forRemoval = true)
   public static final StaticModifier<?> enderdodging = MODIFIERS.registerDynamic("enderdodging");
+  /** @deprecated use {@link slimeknights.tconstruct.tools.data.ModifierIds#chrysophilite} */
+  @Deprecated(forRemoval = true)
+  public static final StaticModifier<?> chrysophilite = MODIFIERS.registerDynamic("chrysophilite");
+  /** @deprecated use {@link slimeknights.tconstruct.tools.data.ModifierIds#goldGuard} */
+  @Deprecated(forRemoval = true)
+  public static final StaticModifier<?> goldGuard = MODIFIERS.registerDynamic("gold_guard");
 
 
   /*
@@ -844,6 +846,7 @@ public final class TinkerModifiers extends TinkerModule {
       ModifierLevelDisplay.LOADER.register(getResource("pluses"), ModifierLevelDisplay.PLUSES.getLoader());
       ModifierLevelDisplay.LOADER.register(getResource("unique"), ModifierLevelDisplay.UniqueForLevels.LOADER);
       ModifierLevelDisplay.LOADER.register(getResource("cap_level"), ModifierLevelDisplay.LevelCap.LOADER);
+      ModifierLevelDisplay.LOADER.register(getResource("map_level"), ModifierLevelDisplay.MapLevel.LOADER);
 
       // modifier modules //
       ModifierModule.LOADER.register(getResource("empty"), ModifierModule.EMPTY.getLoader());
@@ -909,6 +912,7 @@ public final class TinkerModifiers extends TinkerModule {
       ModifierModule.LOADER.register(getResource("material_variant_color"), MaterialVariantColorModule.LOADER);
       ModifierModule.LOADER.register(getResource("show_interaction_source"), ShowInteractionSourceModule.LOADER);
       ModifierModule.LOADER.register(getResource("melee_instrument"), MeleeInstrumentModule.LOADER);
+      ModifierModule.LOADER.register(getResource("stat_tooltip"), StatTooltipModule.LOADER);
       // enchantment
       ModifierModule.LOADER.register(getResource("constant_enchantment"), EnchantmentModule.Constant.LOADER);
       ModifierModule.LOADER.register(getResource("main_hand_harvest_enchantment"), EnchantmentModule.MainHandHarvest.LOADER);
@@ -958,6 +962,7 @@ public final class TinkerModifiers extends TinkerModule {
       ModifierModule.LOADER.register(getResource("projectile_bounce"), ProjectileBounceModule.LOADER);
       ModifierModule.LOADER.register(getResource("block_item_provider"), BlockItemProviderModule.LOADER);
       ModifierModule.LOADER.register(getResource("tool_damage_range"), ToolDamageRangeModule.LOADER);
+      ModifierModule.LOADER.register(getResource("golden_attribute"), GoldenAttributeModule.LOADER);
       // interaction
       ModifierModule.LOADER.register(getResource("brush"), BrushModule.LOADER);
       ModifierModule.LOADER.register(getResource("campfire_extinguish"), ExtinguishCampfireModule.LOADER);
